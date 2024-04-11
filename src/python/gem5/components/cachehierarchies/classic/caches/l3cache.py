@@ -1,4 +1,4 @@
-# Copyright (c) 2022 The Regents of the University of California
+# Copyright (c) 2021 The Regents of the University of California
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,35 +24,44 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from typing import Type
 
-class AbstractThreeLevelCacheHierarchy:
+from m5.objects import (
+    BasePrefetcher,
+    Cache,
+    Clusivity,
+    StridePrefetcher,
+)
+
+from .....utils.override import *
+
+
+class L3Cache(Cache):
     """
-    An abstract three-level hierarchy with configurable size and associativity
-    for each of L1, L2, and L3 caches.
+    A simple L3 Cache with default values.
     """
 
     def __init__(
         self,
-        l1i_size: str,
-        l1i_assoc: int,
-        l1d_size: str,
-        l1d_assoc: int,
-        l2_size: str,
-        l2_assoc: int,
-        l3_size: str,
-        l3_assoc: int,
-        l3_tag_latency: int,
-        l3_data_latency: int,
-        l3_response_latency: int,
+        size: str,
+        assoc: int = 16,
+        tag_latency: int = 10,
+        data_latency: int = 10,
+        response_latency: int = 1,
+        mshrs: int = 20,
+        tgts_per_mshr: int = 12,
+        writeback_clean: bool = False,
+        clusivity: Clusivity = "mostly_incl",
+        PrefetcherCls: Type[BasePrefetcher] = StridePrefetcher,
     ):
-        self._l1i_size = l1i_size
-        self._l1i_assoc = l1i_assoc
-        self._l1d_size = l1d_size
-        self._l1d_assoc = l1d_assoc
-        self._l2_size = l2_size
-        self._l2_assoc = l2_assoc
-        self._l3_size = l3_size
-        self._l3_assoc = l3_assoc
-        self._l3_tag_latency= l3_tag_latency
-        self._l3_data_latency= l3_data_latency
-        self._l3_response_latency= l3_response_latency
+        super().__init__()
+        self.size = size
+        self.assoc = assoc
+        self.tag_latency = tag_latency
+        self.data_latency = data_latency
+        self.response_latency = response_latency
+        self.mshrs = mshrs
+        self.tgts_per_mshr = tgts_per_mshr
+        self.writeback_clean = writeback_clean
+        self.clusivity = clusivity
+        self.prefetcher = PrefetcherCls()
